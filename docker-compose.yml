@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # Jupyter Lab
+  jupyter:
+    build: .
+    container_name: ml-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./utils:/app/utils
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
+
+  # Gradio Image Classifier
+  gradio-image:
+    build: .
+    container_name: ml-gradio-image
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./gradio_apps:/app/gradio_apps
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./utils:/app/utils
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GRADIO_SERVER_NAME=0.0.0.0
+    command: python gradio_apps/image_classifier.py
+
+  # Gradio Text Analyzer
+  gradio-text:
+    build: .
+    container_name: ml-gradio-text
+    ports:
+      - "7861:7861"
+    volumes:
+      - ./gradio_apps:/app/gradio_apps
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./utils:/app/utils
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GRADIO_SERVER_NAME=0.0.0.0
+    command: python gradio_apps/text_analyzer.py
+
+  # Streamlit Dashboard
+  streamlit-dashboard:
+    build: .
+    container_name: ml-streamlit-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./streamlit_apps:/app/streamlit_apps
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./utils:/app/utils
+    environment:
+      - PYTHONUNBUFFERED=1
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    command: streamlit run streamlit_apps/data_dashboard.py
+
+networks:
+  default:
+    name: ml-network
